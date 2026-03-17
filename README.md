@@ -151,19 +151,39 @@ MyProfile/
 
 ## 🚀 部署
 
-### Vercel（推荐）
+### AWS S3（当前部署方案）
+
+**完整部署流程**:
+
+1. **配置环境变量**
+   ```bash
+   # 编辑 .env.production 文件，填入API密钥
+   NEXT_PUBLIC_ANTHROPIC_API_KEY=your_api_key_here
+   ```
+
+2. **构建项目**
+   ```bash
+   npm run build
+   ```
+   构建完成后会在 `out/` 目录生成静态文件
+
+3. **部署到 S3**
+   ```bash
+   aws s3 sync out/ s3://my-profile-ap-2024/ --delete
+   ```
+
+4. **访问网站**
+   ```
+   http://my-profile-ap-2024.s3-website-ap-northeast-1.amazonaws.com
+   ```
+
+**部署脚本**: 项目包含 `deploy-s3.ps1` PowerShell脚本可自动化部署流程
+
+### Vercel（备选方案）
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/erthorpabar/MyProfile)
 
-### AWS S3
-
-```bash
-# 构建
-npm run build
-
-# 上传到 S3
-aws s3 sync out/ s3://your-bucket-name --delete
-```
+**注意**: Vercel支持服务器端API路由，可以更好地保护API密钥
 
 ### Docker
 
