@@ -37,4 +37,5 @@ if (Test-Path "out") {
 
 # 4. 输出网站URL
 Write-Host "`n[4/4] 部署完成" -ForegroundColor Green
-Write-Host "网站地址: http://$BUCKET_NAME.s3-website-$REGION.amazonaws.com" -ForegroundColor Cyan
+$websiteUrl = "http://$BUCKET_NAME.s3-website-$REGION.amazonaws.com"
+Write-Host "网站地址: $websiteUrl" -ForegroundColor Cyan
