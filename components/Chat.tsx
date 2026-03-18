@@ -107,7 +107,7 @@ https://github.com/erthorpabar/mlops-pipeline
       const requestBody = {
         model: model,
         max_tokens: 2048,
-        stream: false,
+        stream: true,
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages,
@@ -138,15 +138,51 @@ https://github.com/erthorpabar/mlops-pipeline
         throw new Error(`API请求失败: ${response.status} - ${errorText}`)
       }
 
-      // 处理OpenAI格式的响应
-      const data = await response.json()
-      console.log('API Response:', data)
-      
-      const assistantMessage = data.choices?.[0]?.message?.content || '抱歉，我没有收到有效回复。'
+      // 处理流式响应
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let fullContent = ''
+
+      if (!reader) {
+        throw new Error('无法获取响应流')
+      }
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n').filter(line => line.trim() !== '')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim()
+            
+            if (data === '[DONE]') {
+              continue
+            }
+
+            try {
+              const parsed = JSON.parse(data)
+              const content = parsed.choices?.[0]?.delta?.content || ''
+              
+              if (content) {
+                fullContent += content
+                setStreamingContent(fullContent)
+              }
+            } catch (e) {
+              console.warn('Failed to parse chunk:', data)
+            }
+          }
+        }
+      }
+
+      // 流式传输完成，将完整消息添加到消息列表
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: assistantMessage
+        content: fullContent || '抱歉，我没有收到有效回复。'
       }])
+      setStreamingContent('')
       
     } catch (error) {
       console.error('Chat error:', error)
