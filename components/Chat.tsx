@@ -35,10 +35,10 @@ export default function Chat() {
     setStreamingContent('')
 
     try {
-      // 直接从环境变量读取配置
-      const baseUrl = process.env.NEXT_PUBLIC_ANTHROPIC_BASE_URL || 'https://open.bigmodel.cn/api/anthropic'
-      const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || ''
-      const model = process.env.NEXT_PUBLIC_ANTHROPIC_MODEL || 'glm-5'
+      // 硬编码配置（S3 静态部署不支持环境变量）
+      const baseUrl = 'https://open.bigmodel.cn/api/paas/v4'
+      const apiKey = 'bcb4b79cf63d81bb74004a7438afe404.ZWtkkACpqBa522oQ'
+      const model = 'GLM-4-Flash-250414'
 
       console.log('API Config:', { baseUrl, hasApiKey: !!apiKey, model })
 
